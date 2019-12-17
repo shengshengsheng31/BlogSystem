@@ -26,9 +26,15 @@ namespace BlogSystem.BLL
             }
         }
 
-        public Task ChangeUserInfomation(string email, string siteName, string imagePath)
+        public async Task ChangeUserInfomation(string email, string siteName, string imagePath)
         {
-            throw new NotImplementedException();
+            using (IDAL.IUserService userSvc = new DAL.UserService())
+            {
+                var user = await userSvc.GetAllAsync().FirstAsync(predicate: m => m.Email == email);
+                user.SiteName = siteName;
+                user.ImagePath = imagePath;
+                await userSvc.EditAsync(user);
+            }
         }
 
         public async Task<UserformationDto> GetUserEmail(string email)
@@ -54,11 +60,23 @@ namespace BlogSystem.BLL
             }
         }
 
-        public async Task<bool> Login(string email, string password)
+        public bool Login(string email, string password, out Guid userId)
         {
             using (IDAL.IUserService userSvc = new DAL.UserService())
             {
-                return await userSvc.GetAllAsync().AnyAsync(predicate: m => m.Email == email && m.Password == password);
+                var user = userSvc.GetAllAsync().FirstOrDefaultAsync(predicate: m => m.Email == email && m.Password == password);
+                user.Wait();
+                var data = user.Result;
+                if (data == null)
+                {
+                    userId = new Guid();
+                    return false;
+                }
+                else
+                {
+                    userId = data.Id;
+                    return true;
+                }
             }
         }
 
