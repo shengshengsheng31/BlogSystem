@@ -65,7 +65,7 @@
         <tr>
             <td colspan="6">
                 <ul id="pageList">
-                    @if (ViewBag.PageCount <=100)
+                    @if (ViewBag.PageCount <= 7)
                     {
                         //实际页码数量小于等于可容纳页码总量
                         for (int i = 1; i <= ViewBag.PageCount; i++)
@@ -73,13 +73,13 @@
                             if (i == ViewBag.PageIndex)
                             {
                                 <li>
-                                    <a href="/Article/ArticleList/?pageIndex=@(i)&pageSize=3" style="color:red">@i </a>
+                                    <a href="/Article/ArticleList/?pageIndex=@(i)&pageSize=3" style="color:red" class="liItem">@i </a>
                                 </li>
                             }
                             else
                             {
                                 <li>
-                                    <a href="/Article/ArticleList/?pageIndex=@(i)&pageSize=3">@i</a>
+                                    <a href="/Article/ArticleList/?pageIndex=@(i)&pageSize=3" class="liItem">@i</a>
                                 </li>
                             }
 
@@ -88,57 +88,58 @@
                     else
                     {
                         //实际页码数量大于可容纳页码总量
-                        if (ViewBag.PageIndex <= 7 / 2 + 1)
+                        if (ViewBag.PageIndex <= ViewBag.PageView / 2 + 1)
                         {
                             //当前页码小于可容纳页码的一半
-                            for (int i = 1; i <= 7; i++)
+                            for (int i = 1; i <= ViewBag.PageView; i++)
                             {
-                                if (i == ViewBag.PageIndex + 1)
+                                if (i == ViewBag.PageIndex)
                                 {
                                     <li>
-                                        <a style="color:red" href="#">@i</a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem" style="color:red">@i</a>
                                     </li>
                                 }
                                 else
                                 {
                                     <li>
-                                        <a href="/Article/ArticleList/?pageIndex=@(i - 1)"> @i </a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem">@i</a>
                                     </li>
                                 }
                             }
                         }
-                        else if ((ViewBag.PageCount - ViewBag.PageIndex - 1) <= 7 / 2)
+                        else if ((ViewBag.PageCount - ViewBag.PageIndex ) <= ViewBag.PageView / 2)
                         {
-                            for (int i = ViewBag.PageCount - 6; i <= ViewBag.PageCount; i++)
+                            //最后页减去当前页为容纳页数的一半
+                            for (int i = ViewBag.PageCount - ViewBag.PageView+1; i <= ViewBag.PageCount; i++)
                             {
-                                if (i == ViewBag.PageIndex + 1)
+                                if (i == ViewBag.PageIndex)
                                 {
                                     <li>
-                                        <a style="color:red" href="#">@i</a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem" style="color:red">@i</a>
                                     </li>
                                 }
                                 else
                                 {
                                     <li>
-                                        <a href="/Article/ArticleList/?pageIndex=@(i - 1)"> @i </a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem">@i</a>
                                     </li>
                                 }
                             }
                         }
                         else
                         {
-                            for (int i = ViewBag.PageIndex - 7 / 2 + 1; i <= ViewBag.PageIndex + 7 / 2 + 1; i++)
+                            for (int i = ViewBag.PageIndex - ViewBag.PageView / 2 ; i <= ViewBag.PageIndex + ViewBag.PageView / 2 ; i++)
                             {
-                                if (i == ViewBag.PageIndex + 1)
+                                if (i == ViewBag.PageIndex )
                                 {
                                     <li>
-                                        <a style="color:red" href="#">@i</a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem" style="color:red"> @i </a>
                                     </li>
                                 }
                                 else
                                 {
                                     <li>
-                                        <a href="/Article/ArticleList/?pageIndex=@(i - 1)"> @i </a>
+                                        <a href="/Article/ArticleList/?pageIndex=@(i)" class="liItem"> @i </a>
                                     </li>
                                 }
                             }
@@ -149,3 +150,12 @@
         </tr>
     </tfoot>
 </table>
+@section headers{
+    <style>
+        #pageList li{
+            display:inline-block;
+            margin:10px;
+            padding:10px;
+        }
+    </style>
+}
