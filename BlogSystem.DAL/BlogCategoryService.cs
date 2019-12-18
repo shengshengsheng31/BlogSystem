@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BlogSystem.DAL
 {
-    public class BlogCategoryService : BaseService<Models.BlogCategory>, IBlogCategory
+    public class BlogCategoryService : BaseService<Models.BlogCategory>, IBlogCategoryService
     {
         public BlogCategoryService():base(new Models.BlogContext()) { }
     }
