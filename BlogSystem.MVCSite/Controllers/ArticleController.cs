@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Webdiyer.WebControls.Mvc;
 
 namespace BlogSystem.MVCSite.Controllers
 {
@@ -70,12 +71,27 @@ namespace BlogSystem.MVCSite.Controllers
             //需要给页面前端，总页码数，当前页码，可显示的总页码数量
             var articleMgr = new ArticleManager();
             var userId = Guid.Parse(Session["userId"].ToString());
-            var articles = await new ArticleManager().GetAllArticlesByUserId(userId,pageIndex-1,pageSize);//后台方法需要从0开始
+            var articles = await articleMgr.GetAllArticlesByUserId(userId,pageIndex-1,pageSize);//后台方法需要从0开始
             var dataCount = await articleMgr.GetDataCount(userId);
             ViewBag.PageCount = dataCount % pageSize==0?dataCount/pageSize:dataCount/pageSize+1;
             ViewBag.PageIndex = pageIndex;
             ViewBag.PageView = 7;//需要显示的页数
             return View(articles);
+        }
+
+        //插件页码
+        [HttpGet]
+        public async Task<ActionResult> ArticleListPro(int pageIndex = 1, int pageSize = 3)
+        {
+            //需要给页面前端，总页码数，当前页码，可显示的总页码数量
+            var articleMgr = new ArticleManager();
+            var userId = Guid.Parse(Session["userId"].ToString());
+            //当前用户第n页数据
+            var articles = await articleMgr.GetAllArticlesByUserId(userId, pageIndex - 1, pageSize);//后台方法需要从0开始
+            //文章总数
+            var dataCount = await articleMgr.GetDataCount(userId);
+            
+            return View(new PagedList<Dto.ArticleDto>(articles,pageIndex,pageSize,dataCount));
         }
 
         public async Task<ActionResult> ArticleDetails(Guid? id)
