@@ -15,7 +15,7 @@ namespace BlogSystem.Models
         public User User { get; set; }
 
         [Required,StringLength(maximumLength:140)]
-        public string Context { get; set; }
+        public string Content { get; set; }
 
         [ForeignKey(nameof(Article))]
         public Guid ArticleId { get; set; }

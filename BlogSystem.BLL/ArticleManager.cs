@@ -14,6 +14,16 @@ namespace BlogSystem.BLL
 {
     public class ArticleManager : IArticleManager
     {
+        public async Task  BadCount(Guid articleId)
+        {
+            using (IDAL.IArticleService articleService = new ArticleService())
+            {
+                var article = await articleService.GetOneByIdAsync(articleId);
+                article.BadCount++;
+                await articleService.EditAsync(article);
+            }
+        }
+
         public async Task CreateArticle(string title, string content, Guid[] categoryIds, Guid userId)
         {
             using (var articleSvc = new ArticleService())
@@ -54,9 +64,66 @@ namespace BlogSystem.BLL
             }
         }
 
+        public async Task CreateComment(Guid userId, Guid articleId, string Content)
+        {
+            using(IDAL.ICommentService commentService = new CommentService())
+            {
+                await commentService.CreateAsync(new Comment()
+                {
+                    UserId = userId,
+                    ArticleId=articleId,
+                    Content = Content
+                });
+            }
+        }
+
+        public async Task<List<Dto.CommentDto>> GetCommentsByArticleId(Guid articleId)
+        {
+            using (IDAL.ICommentService commentService = new CommentService())
+            {
+                return await commentService.GetAllAsync().Where(m => m.ArticleId == articleId)
+                    .Include(m => m.User)
+                    .Select(m => new CommentDto()
+                    {
+                        Id = m.Id,
+                        ArticleId = m.ArticleId,
+                        UserId = m.UserId,
+                        Content = m.Content,
+                        CretaTime = m.CreateTime,
+                        Email = m.User.Email   
+                    }).ToListAsync();
+                
+            }
+        }
+
         public async Task EditArticle(Guid articleId, string title, string content, Guid[] categoryIds)
         {
-            throw new NotImplementedException();
+            using (IDAL.IArticleService articleService=new ArticleService())
+            {
+                var article = await articleService.GetOneByIdAsync(articleId);
+                article.Titile = title;
+                article.Content = content;
+                await articleService.EditAsync(article);
+
+                using(IDAL.IArticleToCategoryService articleToCategoryService = new ArticleToCategoryService())
+                {
+                    //删除原有的类别
+                    foreach(var categoryId in articleToCategoryService.GetAllAsync().Where(m=>m.ArticleId==articleId))
+                    {
+                        await articleToCategoryService.RemoveAsync(categoryId, false);
+                    }
+                    //添加现有类别
+                    foreach(var categoryId in categoryIds)
+                    {
+                        await articleToCategoryService.CreateAsync(new ArticleToCategory()
+                        {
+                            ArticleId = articleId,
+                            BlogCategoryId = categoryId
+                        }, false);
+                    }
+                    await articleToCategoryService.Save();
+                }
+            }
         }
 
         public async Task EditCategory(Guid categoryId, string newCategoryName)
@@ -156,6 +223,16 @@ namespace BlogSystem.BLL
                     data.CategoryNames = cates.Select(m => m.BlogCategory.CategoryName).ToArray();
                     return data;
                 }
+            }
+        }
+
+        public async Task GoodCount(Guid articleId)
+        {
+           using(IDAL.IArticleService articleService = new ArticleService())
+            {
+                var article = await articleService.GetOneByIdAsync(articleId);
+                article.GoodCount++;
+                await articleService.EditAsync(article); 
             }
         }
 
